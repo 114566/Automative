@@ -1,0 +1,46 @@
+image: docker:20.10.16
+
+variables:
+  psql_user: $psql_user
+  psql_pw: $psql_pw
+  psql_ip: $psql_ip
+  psql_port: $psql_port
+  psql_database: $psql_database
+  spaces_id: $psql_database
+  GIT_SUBMODULE_STRATEGY: recursive
+
+  DOCKER_HOST: tcp://docker:2376
+  DOCKER_TLS_CERTDIR: "/certs"
+  DOCKER_TLS_VERIFY: 0
+  DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
+
+services:
+  - docker:20.10.16-dind
+
+stages:
+#  - build
+  - deploy
+
+# build_image:
+#   stage: build
+#   only:
+#     refs:
+#       - main
+#       - stage
+#   script:
+#     - sleep 30
+#     - docker login registry.digitalocean.com --password "$REGISTRY_PASSWORD" --username "$REGISTRY_PASSWORD"
+#     - docker build . -t website
+#     - docker tag website registry.digitalocean.com/automait/website:"$CI_BUILD_REF_SLUG"
+#     - docker push registry.digitalocean.com/automait/website:"$CI_BUILD_REF_SLUG"
+
+deploy_website:
+  image: registry.digitalocean.com/automait/gitlab_runner
+  stage: deploy
+  only:
+    refs:
+      - main
+      - stage
+  script:
+    - chmod +x ./ops/deploy.sh
+    - ./ops/deploy.sh
